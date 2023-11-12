@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/automate_graph_modeller" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
