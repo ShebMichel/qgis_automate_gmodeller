@@ -14,4 +14,12 @@ For installion execute the below steps:
   '''ADD VIDEO WITH MOUSE TRACKING HERE'''
 ## 1.2. Windows (other method)
   will be upgraded soon'''
-  
+
+
+# 2. Environment Installation
+## 2.1. Required
+This plugin will requires the below dependencies to run it successfuly
+- QGIS version:
+- Python 3.xxxxxxxxxxxx
+- Python packages: ----lists here
+- Python optional package : list here
