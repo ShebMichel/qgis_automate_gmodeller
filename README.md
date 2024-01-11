@@ -11,6 +11,6 @@ For installion execute the below steps:
 - Choose install zip, then after successfull message
 - Go to Plugins -> Manage and Install Plugins -> All
 - Search for “your_plugin name” check its associated box
-1.2. Windows (other method)
+## 1.2. Windows (other method)
   will be upgraded soon'''
   
