@@ -18,7 +18,7 @@ For installion execute the below steps:
 
 # 2. Environment Installation
 ## 2.1. Required
-This plugin will requires the below dependencies to run it successfuly
+This plugin will requires the below dependencies: 
 - QGIS version:
 - Python 3.xxxxxxxxxxxx
 - Python packages: ----lists here
