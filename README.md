@@ -1,9 +1,9 @@
 # qgis_automate_gmodeller
 This plugin automate the processing of environmental impact of linear projects such as pipeline, roads, railway and so on to living species in the area of investigation.
 ## How to install this plugin?
-#1. Quick install
+# Sec 1 Quick install
    
-#1.1. Windows (using zip file)
+## Sub 1.1 Windows (using zip file)
 
 For installion execute the below steps:
 - Add plugin repo
