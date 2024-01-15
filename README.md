@@ -29,9 +29,20 @@ A usage example of running the graph modeller is shown below:
 <p align="center">
 <img src="https://github.com/ShebMichel/qgis-animated_gif/blob/main/impact_asssessment_via_local_data.gif">
 </p>
+In this example, it is a straight forward exercise, where the user will deal with data locally and conduct a routine assessment.
 
 # 4. Running the plugin using db data
 A usage example of running the graph modeller is shown below:
 <p align="center">
 <img src="https://github.com/ShebMichel/qgis-animated_gif/blob/main/impact_asssessment_via_db_data.gif">
 </p>
+The data are exported from a local directory to a database, then the db data are then exported into QGIS for further calculations.
+Unlike using the local data, here, the user have the possiblity to export data as shown in the below example, 
+but also to import data directly (this feature is not released, can be done on demand).
+
+# 5. Feature releases:
+  - Run Interpreter:  This is an extra feature in which the user can plot the general trend of the impact assessment.
+  - to be filled
+# 6. Remarks:
+- This demo is very useful for monitoring projects. Here we present the impact assessment linear features such as roads, railways and so on the different birds habitats.
+- It is a project which has the potential of being adapted to your needs. Feel free to touch base or contact michel.nzikou@alumni.uleth.ca. 
