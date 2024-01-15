@@ -30,3 +30,8 @@ A usage example of running the graph modeller is shown below:
 <img src="https://github.com/ShebMichel/qgis-animated_gif/blob/main/impact_asssessment_via_local_data.gif">
 </p>
 
+# 4. Running the plugin using db data
+A usage example of running the graph modeller is shown below:
+<p align="center">
+<img src="https://github.com/ShebMichel/qgis-animated_gif/blob/main/impact_asssessment_via_db_data.gif">
+</p>
