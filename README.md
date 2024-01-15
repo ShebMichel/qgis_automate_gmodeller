@@ -23,3 +23,10 @@ This plugin will requires the below dependencies:
 - Python 3.xxxxxxxxxxxx
 - Python packages: ----lists here
 - Python optional package : list here
+
+# 3. Running the plugin using local data
+A usage example of running the graph modeller is shown below:
+<p align="center">
+<img src="https://github.com/ShebMichel/qgis-animated_gif/blob/main/impact_asssessment_via_local_data.gif">
+</p>
+
