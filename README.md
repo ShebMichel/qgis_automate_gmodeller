@@ -11,7 +11,7 @@ For installion execute the below steps:
 - Choose install zip, then after successfull message
 - Go to Plugins -> Manage and Install Plugins -> All
 - Search for “your_plugin name” check its associated box
-  '''ADD VIDEO WITH MOUSE TRACKING HERE'''
+  
 ## 1.2. Windows (other method)
   will be upgraded soon'''
 
@@ -44,5 +44,5 @@ but also to import data directly (this feature is not released, can be done on d
   - Run Interpreter:  This is an extra feature in which the user can plot the general trend of the impact assessment.
   - to be filled
 # 6. Remarks:
-- This demo is very useful for monitoring projects. Here we present the impact assessment linear features such as roads, railways and so on the different birds habitats.
+- This demo is very useful for monitoring projects. Here we present the impact assessment of linear features, such as roads and railways on a few birds habitats.
 - It is a project which has the potential of being adapted to your needs. Feel free to touch base or contact michel.nzikou@alumni.uleth.ca. 
