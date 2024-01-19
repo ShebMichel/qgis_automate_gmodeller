@@ -500,11 +500,11 @@ class AutomateGraphModelerlDialog(QtWidgets.QDialog, FORM_CLASS):
         """
         self.Export_pushButton.setEnabled(False)
         self.server_feature("All Visible")
-        str(self.server_param_1.setText("postgres"))
-        str(self.server_param_2.setText("@Sheb@1978@"))
-        str(self.server_param_3.setText("localhost"))
-        str(self.server_param_4.setText("5432"))
-        str(self.server_param_5.setText("sdb_impact_database"))
+        str(self.server_param_1.setText("type your postgres ID"))
+        str(self.server_param_2.setText("type Postgres pasword"))
+        str(self.server_param_3.setText("type your hostnaeme:default=localhost"))
+        str(self.server_param_4.setText("type your port number"))
+        str(self.server_param_5.setText("type the db name you are trying to connect to"))
 
         return
 
