@@ -22,20 +22,32 @@
  ***************************************************************************/
 """
 
-import os,subprocess
-import processing
+import os, subprocess
+import shutil
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 from processing.modeler.ModelerDialog import ModelerDialog
-from qgis.core import QgsVectorLayer,QgsRasterLayer,QgsDataSourceUri,QgsProject,QgsProviderRegistry
-from PyQt5.QtWidgets import  QFileDialog, QMessageBox
-#from qgis.core import QgsProviderRegistry
+from qgis.core import (
+    QgsVectorLayer,
+    QgsRasterLayer,
+    QgsDataSourceUri,
+    QgsProject,
+    QgsProviderRegistry,
+)
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+
+from .utulity import (
+    find_model_in_plugin_dir,
+    fill_in_modelcheckbox,
+    run_progress_bar,
+)
 
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'automate_graph_modeller_dialog_base.ui'))
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "automate_graph_modeller_dialog_base.ui")
+)
 
 
 class AutomateGraphModelerlDialog(QtWidgets.QDialog, FORM_CLASS):
@@ -49,205 +61,419 @@ class AutomateGraphModelerlDialog(QtWidgets.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-        
+        # Launch the welcome message
+        self.launch_welcome_msg()
         # Load the vector layers
         self.Load_Layers_pushButton.clicked.connect(self.select_dataloader_option)
         # Launch your graphical modeller
         self.GModel_launcher_pushButton.clicked.connect(self.load_graphical_modeller)
         # Run the graphical modeller
-        #self.GModeller_pushButton.clicked.connect(self.run_gmodeller)
-        self.connect_pushButton.clicked.connect(self.connect_db)
+        self.connect_pushButton.clicked.connect(self.exporting_data_to_db_now)
         #
-        self.radio_button('All Hide')
-        self.server_feature('All Hide')
-        self.export_import_groupBox.hide()
-
+        self.Stat_pushButton.clicked.connect(self.visualize_your_impact)
+        self.radio_button("All Hide")
+        # Hide Graphical modeller Frame
+        self.export_import_frame.hide()
+        # Hide Graphical modeller Frame
+        self.server_connection_frame.hide()
+        # Hide Graphical modeller Frame
+        self.modeller_frame.hide()
+        # hide progress bar
+        self.gm_progressBar.hide()
+        self.export_import_label.hide()
+        # To convert groupbox into Frame, right click and Morph into...QFrame
 
     def select_folder(self):
-        '''
+        """
         This function return the project folder directory, in which the json and python script will be saved.
-        Here, the user will be ask to search their data directory and select its folder. 
-        '''
-        self.folder_name       = self.sender().objectName()
-        self.data_folder       = QFileDialog.getExistingDirectory(self.LocalFile_radioButton, "Select folder ","",)
-        #print('data foldername is: ',self.data_folder)
+        Here, the user will be ask to search their data directory and select its folder.
+        """
+        self.folder_name = self.sender().objectName()
+        self.data_folder = QFileDialog.getExistingDirectory(
+            self.LocalFile_radioButton,
+            "Select folder ",
+            "",
+        )
         self.load_local_data(self.data_folder)
-        return 
-   
+        self.welcome_msg.append(
+            "Log msg: source data path is selected ..... status: success \n ................\n"
+        )
+        return
 
+    def visualize_your_impact(self):
+        QMessageBox.about(
+            self, "Update status", "This feature is only availaible on demand."
+        )
+        # if self.db_radio_obj == "LocalFile_radioButton":
+        self.Stat_pushButton.setEnabled(False)
+        # self.Stat_pushButton.setVisible(True)
+        self.modeller_frame.setEnabled(False)
+        return
 
     def load_graphical_modeller(self):
-        '''
+        """
         This function is used to launch the prexisting graphical model design.
-        '''
-        #try:
-        if self.db_radio_name   =='Database' and self.db_radio_obj=='DB_radioButton':
-            self.data_folder    = QFileDialog.getExistingDirectory(self.LocalFile_radioButton, "Select folder ","",)
-            extension           ='.py'  
-        elif self.db_radio_name   =='Local' and self.db_radio_obj=='LocalFile_radioButton':
-            extension           ='.model3'  
-        else:
-            pass
-        self.modelsaved = [each for each in os.listdir(self.data_folder) if each.endswith(str(extension))]
-        # Append the model to the model combo box
-        self.mcomboBox.clear()
-        self.mcomboBox.addItems(self.modelsaved)
-        self.modelcheckBox.stateChanged.connect(self.open_gmodeller)
+        """
+        # model extension to look for
+        self.extension = ".model3"
+        # set enabled run gmodeller
+        self.GModel_launcher_pushButton.setEnabled(False)
+        # define few flags
+        self.graph_model_flag = self.sender().objectName()
+        self.plugin_dir = os.path.dirname(os.path.abspath(__file__))
+        # find model3
+        self.modelsaved = find_model_in_plugin_dir(self, self.plugin_dir, ".model3")
+        src = str(self.plugin_dir) + "/" + str(self.modelsaved[0])
+
+        self.welcome_msg.append(
+            "Log msg: "
+            + str(self.sender().text())
+            + " pushbutton is clicked ..... status: success \n ................\n"
+        )
+        try:
+            if (
+                self.export_flag == "Export_pushButton"
+                and self.graph_model_flag == "GModel_launcher_pushButton"
+            ):
+                # assign the data folder path to data_folder
+                self.data_folder = self.layer_path
+                dst = str(self.data_folder)
+            elif (
+                self.export_flag == "Import_pushButton"
+                and self.graph_model_flag == "GModel_launcher_pushButton"
+            ):
+                # find list of data in the QGIS panel
+                layers_list = [
+                    tree_layer.layer()
+                    for tree_layer in QgsProject.instance().layerTreeRoot().findLayers()
+                ]
+                layer_name_list = [a.name() for a in layers_list]
+                qgis_layer_path = str(layers_list[0].dataProvider().dataSourceUri())
+                # Fill in the combobox
+                fill_in_modelcheckbox(self, self.open_gmodeller)
+            else:
+                pass
+            # copy model to data source
+            shutil.copy(src, dst)
+            # Fill in the combobox
+            fill_in_modelcheckbox(self, self.open_gmodeller)
+            self.welcome_msg.append(
+                "Log msg:"
+                + str(self.modelsaved[0])
+                + " is being copied \n \n "
+                + "copy action status: success \n ................\n"
+            )
+
+        except:
+            if (
+                self.db_radio_name == "Database"
+                and self.db_radio_obj == "DB_radioButton"
+                and self.sender().objectName() == "Export_pushButton"
+            ):
+                self.data_folder = QFileDialog.getExistingDirectory(
+                    self.LocalFile_radioButton,
+                    "Select folder ",
+                    "",
+                )
+            elif (
+                self.db_radio_name == "Local"
+                and self.db_radio_obj == "LocalFile_radioButton"
+            ):
+                #  select Local pushbutton is selected
+                shutil.copy(src, self.data_folder)
+
+            else:
+                pass
+
+            if (
+                self.db_radio_name == "Database"
+                and self.db_radio_obj == "DB_radioButton"
+                and self.export_flag == "Import_pushButton"
+                and self.sender().objectName() == "GModel_launcher_pushButton"
+            ):
+                pass
+
+            else:
+                self.modelsaved = [
+                    each
+                    for each in os.listdir(self.data_folder)
+                    if each.endswith(str(self.extension))
+                ]
+                fill_in_modelcheckbox(self, self.open_gmodeller)
         return
-    
 
     def open_gmodeller(self):
-        '''
+        """
         This function is used to launch the graphical modeller once the model is selected.
-        '''
+        """
+        self.welcome_msg.append(
+            "Log msg: "
+            + str(self.sender().objectName())
+            + " pushbutton is clicked ..... status: success \n ................\n"
+        )
+        # make a flag for the checkbox
+        self.modelbox_flag = self.modelcheckBox.isChecked()
+
         # the selected model name is given below
-        self.run_model      =str(self.mcomboBox.currentText())
-        # The below line populate the graphical modeller
-        self.dlg = ModelerDialog()
-        self.dlg.loadModel(str(self.data_folder)+'/'+ str(self.run_model) )  
-        self.dlg.show()
+        self.run_model = str(self.mcomboBox.currentText())
+        try:
+            if self.modelbox_flag == True and self.export_flag == "Import_pushButton":
+                self.Stat_pushButton.setVisible(True)
+                self.modeller_frame.setEnabled(False)
+                QMessageBox.about(
+                    self, "Update status", "This feature is only availaible on demand."
+                )
+        except:
+            pass
+            # self.data_folder=????
+        try:
+            if (
+                self.modelbox_flag == True
+                and self.db_radio_obj == "LocalFile_radioButton"
+                or self.modelbox_flag == True
+                and self.db_radio_obj == "DB_radioButton"
+                or self.modelbox_flag == True
+                and self.export_flag == "Import_pushButton"
+            ):
+                # The below line populate the graphical modeller
+                self.dlg = ModelerDialog()
+                self.dlg.loadModel(str(self.data_folder) + "/" + str(self.run_model))
+                self.dlg.show()
+        except:
+            pass
+
         self.GModel_launcher_pushButton.setEnabled(False)
         self.mcomboBox.setEnabled(False)
         self.modelcheckBox.setEnabled(False)
-        return
-   
+        self.server_connection_frame.setEnabled(False)
 
-    def create_layer_dict(self,path_file):
-        '''
+        self.welcome_msg.append(
+            "Log msg: "
+            + str(self.modelsaved[0])
+            + " is selected ..... status: success \n ................\n"
+        )
+        self.welcome_msg.append(
+            "Log msg: Next step is to run graphical modeller front end ..... status: awaiting  \n ................\n"
+        )
+        return
+
+    def create_layer_dict(self, path_file):
+        """
         This fucntion create a dictionary of layer path with its name
-        # path : folder path of your local data 
-        
-        '''
+        # path : folder path of your local data
+
+        """
         # create an empty dictionary
-        name_and_crs_dict  ={}
-        name_and_path_dict ={}
-        for path,dirs,files in os.walk(str(path_file)):
+        name_and_crs_dict = {}
+        name_and_path_dict = {}
+        for path, dirs, files in os.walk(str(path_file)):
             lay_list = []
             crs_list = []
-            file_list= []
+            file_list = []
             for filename in files:
-                filepath  = str(path_file) +'/'+ str(filename)
-                layername = str(filename).split('.')[0]
-                extra_ext = str(filename).split('.')
-                if '.shp' in str(filename):
+                filepath = str(path_file) + "/" + str(filename)
+                layername = str(filename).split(".")[0]
+                extra_ext = str(filename).split(".")
+                if ".shp" in str(filename):
                     lay_list.append(layername)
                     file_list.append(filepath)
                     # Read CRS value of layer
-                    crs       = QgsVectorLayer(filepath, str(layername)).crs().authid()
+                    crs = QgsVectorLayer(filepath, str(layername)).crs().authid()
                     crs_list.append(crs)
-                elif '.tif' in str(filename) and len(extra_ext)==2  :
+                elif ".tif" in str(filename) and len(extra_ext) == 2:
                     lay_list.append(layername)
                     file_list.append(filepath)
                     # Read CRS value of layer
-                    crs       = QgsRasterLayer(filepath, str(layername)).crs().authid()
+                    crs = QgsRasterLayer(filepath, str(layername)).crs().authid()
                     crs_list.append(crs)
                 else:
                     pass
             # create the dictionary
-            name_and_crs_dict = dict(zip(lay_list,crs_list))
-            name_and_path_dict= dict(zip(lay_list,file_list))
+            name_and_crs_dict = dict(zip(lay_list, crs_list))
+            name_and_path_dict = dict(zip(lay_list, file_list))
 
         return name_and_crs_dict, name_and_path_dict
 
-
     def export_data_to_db(self):
         """
-        Uploades shape files to PostgreSQL with org2ogr
+        load data source path and activate the server infos
+        """
+        # disable import_export_frame
+        self.export_import_frame.setEnabled(False)
+        #
+        self.welcome_msg.append(
+            "Log msg: "
+            + str(self.sender().text())
+            + " pushbutton is clicked ..... status: success \n ................\n"
+        )
+        self.export_flag = self.sender().objectName()
+        self.load_frame.setEnabled(False)
+        try:
+            if self.export_flag == "Export_pushButton":
+                QMessageBox.about(
+                    self,
+                    "Export Staus",
+                    "....Select the data folder to export to DB.....",
+                )
+
+                self.layer_path = QFileDialog.getExistingDirectory(
+                    self.Export_pushButton,
+                    "Select folder ",
+                    "",
+                )
+                self.welcome_msg.append(
+                    "Log msg: Local data source path is: "
+                    + str(self.layer_path)
+                    + ":: source data path ..... status: success \n ................\n"
+                )
+            else:
+                pass
+            # load server info
+            self.load_server_info()
+        except:
+            QMessageBox.about(
+                self, "Error Staus", "Err....Couldn't find source data path.....Err"
+            )
+            self.exporting_data_to_db_now()
+        return
+
+    def exporting_data_to_db_now(self):
+        """
+        Upload shape files to PostgreSQL with org2ogr
         :param shpfile: Shapefile to upload to database
         :return: None
         """
-        self.load_server_info()
-        self.username           = str(self.server_param_1.text())
-        self.pswd               = str(self.server_param_2.text())
-        self.host_name          = str(self.server_param_3.text())
-        self.port_number        = str(self.server_param_4.text())
-        self.db_name            = str(self.server_param_5.text())
-        ##
-        dbname   = str(self.db_name) 
-        schema   = 'public'          
-        host     = str(self.host_name) 
-        user     = str(self.username) 
-        password = str(self.pswd) 
-        port     = str(self.port_number)
-        self.layer_path         = QFileDialog.getExistingDirectory(self.Export_pushButton, "Select folder ","",)
-        name_and_crs, name_and_path= self.create_layer_dict(self.layer_path)
-        for key1, key2 in zip(name_and_crs,name_and_path):
-            tablename  = key1
-            crs_value  = name_and_crs[key1]
-            layer_path = name_and_path[key2]
-            # https://gdal.org/drivers/vector/pg.html
-            #command = f"""SET PGCLIENTENCODING=LATIN1 && ogr2ogr -f "PostgreSQL" PG:"host={self.server_name} dbname={self.db_name} user={self.username} password={self.pswd} port={self.port_number}" "{layer_path}" -nln {schema}.{tablename} -lco geometry_name=geom -lco precision=NO -nlt promote_to_multi -a_srs epsg:23850"""
-            command = f"""SET PGCLIENTENCODING=LATIN1 && ogr2ogr -f "PostgreSQL" PG:"host={host} dbname={dbname} user={user} password={password} port={port}" "{layer_path}" -nln {schema}.{tablename} -lco geometry_name=geom -lco precision=NO -nlt promote_to_multi -a_srs """+ str(crs_value)
-            subprocess.call(command, shell=True)
-            #os.system(command)
+        # enable the progress features
+        self.gm_progressBar.setVisible(True)
+        self.export_import_label.setVisible(True)
+        # run_progress_bar(self)
+        # disable connection_frame
+        self.server_connection_frame.setEnabled(False)
+        # populate a msg showing data is being exported/imported
 
+        #
+        self.welcome_msg.append(
+            "Log msg: "
+            + str(self.sender().text())
+            + " pushbutton is clicked ..... status: success \n ................\n"
+        )
+        try:
+            self.username = str(self.server_param_1.text())
+            self.pswd = str(self.server_param_2.text())
+            self.host_name = str(self.server_param_3.text())
+            self.port_number = str(self.server_param_4.text())
+            self.db_name = str(self.server_param_5.text())
+            ##
+            dbname = str(self.db_name)
+            schema = "public"
+            host = str(self.host_name)
+            user = str(self.username)
+            password = str(self.pswd)
+            port = str(self.port_number)
 
+            try:
+                name_and_crs, name_and_path = self.create_layer_dict(self.layer_path)
+
+                for key1, key2 in zip(name_and_crs, name_and_path):
+                    tablename = key1
+                    crs_value = name_and_crs[key1]
+                    layer_path = name_and_path[key2]
+                    # connect to server
+                    command = (
+                        f"""SET PGCLIENTENCODING=LATIN1 && ogr2ogr -f "PostgreSQL" PG:"host={host} dbname={dbname} user={user} password={password} port={port}" "{layer_path}" -nln {schema}.{tablename} -lco geometry_name=geom -lco precision=NO -nlt promote_to_multi -a_srs """
+                        + str(crs_value)
+                    )
+                    subprocess.call(command, shell=True)
+
+                self.welcome_msg.append(
+                    "Log msg: data transfer to : "
+                    + str(self.db_name)
+                    + " ..... status: success \n ................\n"
+                )
+                self.connect_db()
+            except:
+                # connect now to db and export data to QGIS panel
+                self.connect_db()
+        except:
+            QMessageBox.about(
+                self, "Error Staus", "Err....Couldn't connect to the server.....Err"
+            )
+        return
 
     def select_dataloader_option(self):
-        '''
+        """
         This function is used to select the two options below to load the data:
         - Local   : to load data from your local pc
         - Database: to load data from the database
-        '''
-        # Disable loader 
+        """
+        self.welcome_msg.append(
+            "Log msg: "
+            + str(self.sender().text())
+            + " pushbutton is clicked ..... status: success \n ................\n"
+        )
+        # Disable loader
         self.Load_Layers_pushButton.setEnabled(False)
         # Enable loader
-        self.radio_button('All Visible')
+        self.radio_button("All Visible")
         self.LocalFile_radioButton.clicked.connect(self.select_your_load_option)
         self.DB_radioButton.clicked.connect(self.select_your_load_option)
         return
 
-       
-
-
     def select_your_load_option(self):
-        '''
+        """
         This function is used to load all vector layer for your g modeller.
-        '''
+        """
+        self.welcome_msg.append(
+            "Log msg: "
+            + str(self.sender().text())
+            + " pushbutton is clicked ..... status: success \n ................\n"
+        )
         # create a flag once db is used.
         self.db_radio_name = self.sender().text()
         self.db_radio_obj = self.sender().objectName()
-        if self.LocalFile_radioButton.isChecked()==True:
-           self.radio_button('Local')
-           self.select_folder()
+        if self.LocalFile_radioButton.isChecked() == True:
+            self.radio_button("Local")
+            # activate the modeller
+            self.modeller_frame.setVisible(True)
+            self.modeller_frame.resize(280, 200)
+            self.GModel_launcher_pushButton.resize(250, 23)
+            self.mcomboBox.resize(250, 23)
+            self.Stat_pushButton.resize(250, 23)
+            self.select_folder()
+
         else:
-           # create a flag once db is used.
-           self.radio_button('DB')
-           self.export_import_groupBox.setVisible(True)
-           self.Export_pushButton.clicked.connect(self.export_data_to_db)
-           self.Import_pushButton.clicked.connect(self.load_server_info)
-               
+            # create a flag once db is used.
+            self.radio_button("DB")
+            self.export_import_frame.setVisible(True)
+            self.export_import_frame.setGeometry(250, 80, 171, 41)
+            self.Export_pushButton.clicked.connect(self.export_data_to_db)
+            self.Import_pushButton.clicked.connect(self.export_data_to_db)
+
         return
-    
 
-
-
-    def radio_button(self,status):
-        '''
+    def radio_button(self, status):
+        """
         This function is used to control radio button status.
-        '''
-        if status=='DB':
-          self.LocalFile_radioButton.setEnabled(False)
-        elif status=='Local':
+        """
+        if status == "DB":
+            self.LocalFile_radioButton.setEnabled(False)
+        elif status == "Local":
             self.DB_radioButton.setEnabled(False)
-        elif status=='All Hide':
-          self.LocalFile_radioButton.hide()
-          self.DB_radioButton.hide()
-        elif status=='All Visible':
-          self.LocalFile_radioButton.setVisible(True)
-          self.DB_radioButton.setVisible(True)
+        elif status == "All Hide":
+            self.LocalFile_radioButton.hide()
+            self.DB_radioButton.hide()
+        elif status == "All Visible":
+            self.LocalFile_radioButton.setVisible(True)
+            self.DB_radioButton.setVisible(True)
         else:
-           pass
+            pass
         return
-    
-
-
 
     def load_local_data(self, data_folder):
-        '''
+        """
         This function is used to load all vector layers into the qgis panel
         # data_folder: the vector layer folder
-        '''
+        """
         # Folder of your data (vector layers data path)
         data_path = str(data_folder)
 
@@ -256,109 +482,145 @@ class AutomateGraphModelerlDialog(QtWidgets.QDialog, FORM_CLASS):
 
         for file in wholelist:
             if ".shp" in file:
-                file_path=data_path +'\\'+file
-                filename = QgsVectorLayer(file_path,file[:-4],"ogr")
+                file_path = data_path + "\\" + file
+                filename = QgsVectorLayer(file_path, file[:-4], "ogr")
                 QgsProject.instance().addMapLayer(filename)
         return
 
-
-
     def load_server_info(self):
-        '''
+        """
         This function is used to register server and db info
-        # Here we have default info: 
-        #server_name: localhost 
-        # server_name (str): server to connect..default is localhost 
+        # Below is the default infos:
+        #server_name: localhost
+        # server_name (str): server to connect..default is localhost
         # port (str)       : port number..default is 5432
         # db_name (str)    : database table to access..default is sdb_impact_database
         # username (str)   : user ID..default is postgres
         # psword(str)      : connection password
-        '''
+        """
         self.Export_pushButton.setEnabled(False)
-        #self.Import_pushButton.setEnabled(False)
-        self.server_feature('All Visible')
+        self.server_feature("All Visible")
         str(self.server_param_1.setText("postgres"))
         str(self.server_param_2.setText("@Sheb@1978@"))
         str(self.server_param_3.setText("localhost"))
         str(self.server_param_4.setText("5432"))
-        str(self.server_param_5.setText("sdb_impact_database")) 
+        str(self.server_param_5.setText("sdb_impact_database"))
+
         return
 
-
-
     def connect_db(self):
-        '''
+        """
         This function is used to access the postgres database. It reads the info from QlineEditor
         and use it to connect with the server.
-        
-        '''
+        """
+        self.welcome_msg.append(
+            "Log msg: db data connected status: success \n ................\n"
+        )
         #
         self.Import_pushButton.setEnabled(False)
         #
         uri = QgsDataSourceUri()
-        self.username           = str(self.server_param_1.text())
-        self.pswd               = str(self.server_param_2.text())
-        self.server_name        = str(self.server_param_3.text())
-        self.port_number        = str(self.server_param_4.text())
-        self.db_name            = str(self.server_param_5.text())
-        uri.setConnection(self.server_name,self.port_number,self.db_name,self.username, self.pswd)
+        self.username = str(self.server_param_1.text())
+        self.pswd = str(self.server_param_2.text())
+        self.server_name = str(self.server_param_3.text())
+        self.port_number = str(self.server_param_4.text())
+        self.db_name = str(self.server_param_5.text())
+        uri.setConnection(
+            self.server_name, self.port_number, self.db_name, self.username, self.pswd
+        )
         # Define your table connection
-        db_table_names = self.read_all_table_in_db(uri,"postgres")
-        # print('table names: ',db_table_names)
-        # print('#########################################################')
-
-        uri.setDataSource("public", "BAEA_Buffer", "geom")
-        for layer_name in db_table_names:
-            layer = QgsVectorLayer(uri.uri(),str(layer_name), "postgres")
-            if not layer.isValid():
-                print("Layer %s did not load" %layer.name())  
-            QgsProject.instance().addMapLayer(layer)
+        db_table_names = self.read_all_table_in_db(uri, "postgres")
+        idx_list = []
+        for idx, layer_name in enumerate(db_table_names):
+            # print("idx {} and its layername {}:".format(str(idx), str(layer_name)))
+            idx_list.append(idx)
+            run_progress_bar(self, idx, idx_list)
+            # remove the spatial ref layer
+            if "spatial_ref_sys" in str(layer_name):
+                pass
+            else:
+                uri.setDataSource("public", str(layer_name), "geom")
+                layer = QgsVectorLayer(uri.uri(), str(layer_name), "postgres")
+                if not layer.isValid():
+                    print("Layer %s did not load" % layer.name())
+                QgsProject.instance().addMapLayer(layer)
+        #
+        self.welcome_msg.append(
+            "Log msg: db data exported into QGIS ..... status: success \n ................\n"
+        )
         # Disabled the server feature
-        self.server_feature('Disable')
-        self.groupBox_2.setEnabled(False)
+        self.connect_pushButton.setEnabled(False)
+        # Activate the graphical modeller frame
+        self.modeller_frame.setVisible(True)
+        self.welcome_msg.append(
+            "Log msg: graphical modeller enabled ..... status: success \n ................\n"
+        )
+        ####
         return
 
-
-    
-    def read_all_table_in_db(self,uri,db_user):
-        '''
+    def read_all_table_in_db(self, uri, db_user):
+        """
         This function extract all layer name inside your database
-        '''
-        mconect    = QgsProviderRegistry.instance().providerMetadata(db_user)
-        my_connec  = mconect.createConnection(uri.uri(), {})
-        #List all table in public 
-        db_table_names= []  
+        """
+        mconect = QgsProviderRegistry.instance().providerMetadata(db_user)
+        my_connec = mconect.createConnection(uri.uri(), {})
+        # List all table in public
+        db_table_names = []
         for elt in my_connec.tables():
-            if elt.schema()=='public':
+            if elt.schema() == "public":
                 name = elt.tableName()
-                if 'geometry_columns' in str(name) or 'geography_columns' in str(name):
+                if "geometry_columns" in str(name) or "geography_columns" in str(name):
                     pass
-                else: 
+                else:
                     db_table_names.append(name)
         return db_table_names
-        #print('layer db names: ',db_table_names)
 
-
-
-    def server_feature(self,flag):
-        '''
+    def server_feature(self, flag):
+        """
         This function is used to switch off and on the server parameter
-        '''
-        par = [self.server_param_1,self.server_param_2,self.server_param_3,self.server_param_4,self.server_param_5]
-        lab = [self.user_label_1,self.user_label_2,self.user_label_3,self.user_label_4,self.user_label_5]
-       
+        """
+        par = [
+            self.server_param_1,
+            self.server_param_2,
+            self.server_param_3,
+            self.server_param_4,
+            self.server_param_5,
+            self.connect_pushButton,
+            self.server_connection_frame,
+        ]
+        lab = [
+            self.user_label_1,
+            self.user_label_2,
+            self.user_label_3,
+            self.user_label_4,
+            self.user_label_5,
+            self.user_label_5,
+            self.user_label_5,
+        ]
+
         for i in range(len(par)):
-            if flag=='All Hide':
+            if flag == "All Hide":
                 par[i].hide()
                 lab[i].hide()
+
                 #
-            elif 'Set Visible':
+            elif "Set Visible":
                 par[i].setVisible(True)
                 lab[i].setVisible(True)
-            elif 'Disable':
+            elif "Disable":
                 par[i].setEnabled(False)
                 lab[i].setEnabled(False)
             else:
                 pass
         return
 
+    def launch_welcome_msg(self):
+        """
+        This function is used to open the welcome message
+        """
+        msg = "WELCOME TO THE IMPACT ASSESSMENT PLUGIN \n \n TO CONTINUE CLICK <Load Layers> \n ................\n"
+
+        self.welcome_msg.setText(str(msg))
+        self.welcome_msg.setStyleSheet("font-weight: bold")
+
+        return

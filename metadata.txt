@@ -6,7 +6,7 @@
 name=Automate Graph Modeller 
 qgisMinimumVersion=3.0
 description=This plugin automate the graphical modeller 
-version=0.1
+version=0.2
 author=DMN SOLUTIONS
 email=michel.nzikou@alumni.uleth.ca
 

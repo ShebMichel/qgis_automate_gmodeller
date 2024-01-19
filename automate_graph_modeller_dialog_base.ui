@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
-    <height>453</height>
+    <width>480</width>
+    <height>557</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>350</y>
+     <x>10</x>
+     <y>280</y>
      <width>151</width>
      <height>32</height>
     </rect>
@@ -29,37 +29,24 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="GModel_launcher_pushButton">
+  <widget class="QFrame" name="modeller_frame">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>122</y>
-     <width>161</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Launch inGModeller</string>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="groupBox">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>210</y>
-     <width>161</width>
+     <x>10</x>
+     <y>80</y>
+     <width>181</width>
      <height>131</height>
     </rect>
    </property>
-   <property name="title">
-    <string>GroupBox</string>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
    </property>
-   <widget class="QPushButton" name="GModeller_pushButton">
+   <widget class="QPushButton" name="GModel_launcher_pushButton">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>30</y>
-      <width>151</width>
+      <x>10</x>
+      <y>20</y>
+      <width>161</width>
       <height>23</height>
      </rect>
     </property>
@@ -70,9 +57,9 @@
    <widget class="QPushButton" name="Stat_pushButton">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>80</y>
-      <width>151</width>
+      <x>10</x>
+      <y>100</y>
+      <width>161</width>
       <height>23</height>
      </rect>
     </property>
@@ -80,14 +67,36 @@
      <string>Run Interpreter</string>
     </property>
    </widget>
+   <widget class="QWidget" name="layoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>161</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <layout class="QFormLayout" name="formLayout_3">
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="modelcheckBox">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="mcomboBox"/>
+     </item>
+    </layout>
+   </widget>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QFrame" name="load_frame">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>30</y>
-     <width>431</width>
-     <height>25</height>
+     <x>10</x>
+     <y>24</y>
+     <width>461</width>
+     <height>51</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -118,45 +127,23 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QFrame" name="server_connection_frame">
    <property name="geometry">
     <rect>
-     <x>21</x>
-     <y>160</y>
-     <width>161</width>
-     <height>22</height>
+     <x>220</x>
+     <y>120</y>
+     <width>241</width>
+     <height>191</height>
     </rect>
    </property>
-   <layout class="QFormLayout" name="formLayout">
-    <item row="0" column="0">
-     <widget class="QCheckBox" name="modelcheckBox">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="mcomboBox"/>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QGroupBox" name="groupBox_2">
-   <property name="geometry">
-    <rect>
-     <x>210</x>
-     <y>180</y>
-     <width>251</width>
-     <height>201</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Server connection</string>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
    </property>
    <widget class="QLineEdit" name="server_param_1">
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>30</y>
+      <y>10</y>
       <width>125</width>
       <height>20</height>
      </rect>
@@ -166,7 +153,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>10</y>
       <width>64</width>
       <height>16</height>
      </rect>
@@ -186,7 +173,7 @@
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>60</y>
+      <y>40</y>
       <width>125</width>
       <height>20</height>
      </rect>
@@ -196,7 +183,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>40</y>
       <width>67</width>
       <height>20</height>
      </rect>
@@ -216,7 +203,7 @@
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>90</y>
+      <y>70</y>
       <width>125</width>
       <height>20</height>
      </rect>
@@ -226,7 +213,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>70</y>
       <width>81</width>
       <height>20</height>
      </rect>
@@ -246,7 +233,7 @@
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>120</y>
+      <y>100</y>
       <width>125</width>
       <height>20</height>
      </rect>
@@ -256,7 +243,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
+      <y>100</y>
       <width>81</width>
       <height>20</height>
      </rect>
@@ -276,7 +263,7 @@
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>150</y>
+      <y>130</y>
       <width>125</width>
       <height>20</height>
      </rect>
@@ -286,7 +273,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>150</y>
+      <y>130</y>
       <width>81</width>
       <height>20</height>
      </rect>
@@ -306,7 +293,7 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>170</y>
+      <y>160</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -316,44 +303,82 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="export_import_groupBox">
+  <widget class="QFrame" name="export_import_frame">
    <property name="geometry">
     <rect>
-     <x>340</x>
-     <y>70</y>
-     <width>111</width>
-     <height>91</height>
+     <x>280</x>
+     <y>80</y>
+     <width>181</width>
+     <height>41</height>
     </rect>
    </property>
-   <property name="title">
-    <string>Data Transfert</string>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
    </property>
-   <widget class="QPushButton" name="Export_pushButton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>81</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Export--&gt;db</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="Import_pushButton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>81</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Import &lt;--db</string>
-    </property>
-   </widget>
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <widget class="QPushButton" name="Import_pushButton">
+      <property name="text">
+       <string>Import &lt;--db</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="Export_pushButton">
+      <property name="text">
+       <string>Export--&gt;db</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>320</y>
+     <width>451</width>
+     <height>216</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="gm_logger_label">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Log Messages&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="welcome_msg"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QProgressBar" name="gm_progressBar">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>240</y>
+     <width>161</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>0</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="export_import_label">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>220</y>
+     <width>151</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Export/Import progress bar</string>
+   </property>
   </widget>
  </widget>
  <resources/>
