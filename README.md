@@ -41,8 +41,8 @@ Unlike using the local data, here, the user have the possiblity to export data a
 but also to import data directly (this feature is not released, can be done on demand).
 
 # 5. Feature releases:
-  - Run Interpreter:  This is an extra feature in which the user can plot the general trend of the impact assessment.
-  - to be filled
+  - Run Interpreter:  This is an extra feature in which the user can plot the general trend of the impact assessment (on demand).
+  - Run GModeller  : While the data are imported from db, the next process is available on demand (for now).
 # 6. Remarks:
 - This demo is very useful for monitoring projects. Here we present the impact assessment of linear features, such as roads and railways on a few birds habitats.
 - It is a project which has the potential to be adapted in different ecosystem. Feel free to touch base or contact me for a chat. 
