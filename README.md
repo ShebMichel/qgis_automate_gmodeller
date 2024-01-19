@@ -19,10 +19,9 @@ For installion execute the below steps:
 # 2. Environment Installation
 ## 2.1. Required
 This plugin will requires the below dependencies: 
-- QGIS version:
-- Python 3.xxxxxxxxxxxx
-- Python packages: ----lists here
-- Python optional package : list here
+- QGIS version: 3.28.4-Firenze
+- Qt version  : 5.15.3
+- Python 3.9.5
 
 # 3. Running the plugin using local data
 A usage example of running the graph modeller is shown below:
