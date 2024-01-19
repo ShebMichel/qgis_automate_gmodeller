@@ -35,7 +35,8 @@ A usage example of running the graph modeller is shown below:
 <p align="center">
 <img src="https://github.com/ShebMichel/qgis-animated_gif/blob/main/impact_asssessment_via_db_data.gif">
 </p>
-The data are exported from a local directory to a database, then the db data are then exported into QGIS for further calculations.
+## The data are exported from a local directory to a database, 
+## The db data are published into QGIS for further calculations.
 Unlike using the local data, here, the user have the possiblity to export data as shown in the below example, 
 but also to import data directly (this feature is not released, can be done on demand).
 
