@@ -1,5 +1,5 @@
 # qgis_automate_gmodeller
-This plugin automate the processing of environmental impact of linear projects such as pipeline, roads, railway and so on to living species in the area of investigation.
+This processing plugin assess the environmental impact of linear projects (pipeline, roads, railway, etc.) on living species such as Raptor, Bald Eagle (BAEA), Heron Roockeries (GBH) Nests and Burrowing Owl (BUOWL) habitats.
 # How to install this plugin?
 # 1. Quick install
    
@@ -45,4 +45,4 @@ but also to import data directly (this feature is not released, can be done on d
   - to be filled
 # 6. Remarks:
 - This demo is very useful for monitoring projects. Here we present the impact assessment of linear features, such as roads and railways on a few birds habitats.
-- It is a project which has the potential of being adapted to your needs. Feel free to touch base or contact michel.nzikou@alumni.uleth.ca. 
+- It is a project which has the potential to be adapted in different ecosystem. Feel free to touch base or contact me for a chat. 
