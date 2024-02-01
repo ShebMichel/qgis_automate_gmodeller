@@ -6,7 +6,11 @@ This processing plugin assess the environmental impact of linear projects (pipel
 ## 1.1. Windows (using zip file)
 
 For installion execute the below steps:
-- Add plugin repo
+- run the command:
+  '''
+  git clone https://github.com/ShebMichel/qgis_automate_gmodeller.git
+  '''
+  Then zip the qgis_automate_gmodeller folder.
 - Go in the Settings tab of the QGIS Plugins Manager window (see official documentation)
 - Choose install zip, then after successfull message
 - Go to Plugins -> Manage and Install Plugins -> All
